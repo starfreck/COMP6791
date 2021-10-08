@@ -72,31 +72,10 @@ def extract_raw_text(reuters_file, number_of_articals=None):
 
 
 def text_cleaner(string):
-    # &#3;, <, >, \n
-    output = ""
-    lines = string.split(".")
-
-    for line in lines:
-        line = line.replace("&#3;", " ") \
-            .replace("&lt;", " ") \
-            .replace(">", " ") \
-            .replace("(", " ") \
-            .replace(")", " ") \
-            .replace("\n", "") \
-            .replace("\"", "") \
-            .replace(":", " ") \
-            .replace(",", " ") \
-            .replace(",", " ") \
-            .replace("_", " ") \
-            .replace("-", " ") \
-            .strip()
-
-        line = re.sub(r'[0-9]+', '', line)
-        line = re.sub('[^A-Za-z]+', ' ', line)
-
-        output += line
-
-    return output
+    string = string.replace("&lt;", "").replace(".", "")
+    string = re.sub('[^a-zA-Z \.]', ' ', string)
+    string = re.sub(' +', ' ', string)
+    return string
 
 
 def tokenizer(text):
