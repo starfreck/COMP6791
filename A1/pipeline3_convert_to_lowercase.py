@@ -13,8 +13,18 @@ def main():
             file_str = fp.read()
             # Make all text lowercase
             lower_tokens = file_str.lower()
+            # Split tokens and Strip for Stemming
+            tokens = lower_tokens.split(",")
+            tokens = [token.strip() for token in tokens]
+            # Store tokens in set() to make then unique
+            tokens = set(tokens)
+            tokens = list(tokens)
+            # Convert to string to writing in file
+            lower_tokens_str = ""
+            for token in tokens:
+                lower_tokens_str += token + ", "
             # Write to Output File
-            save(directory, OUTPUT_FILE_NAME, lower_tokens)
+            save(directory, OUTPUT_FILE_NAME, lower_tokens_str.rstrip(", "))
 
 
 if __name__ == '__main__':
