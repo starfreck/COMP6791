@@ -30,7 +30,7 @@ def main():
                 stemmed_tokens_str += token + ", "
             # Write to Output File
             save(directory, OUTPUT_FILE_NAME, stemmed_tokens_str.rstrip(", "))
-
+            print(stemmed_tokens_str.rstrip(", "))
 
 if __name__ == '__main__':
     main()

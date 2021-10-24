@@ -6,6 +6,7 @@ OUTPUT_FILE_NAME = "Step-3.txt"
 # Read All Folder Names
 input_folders = load_folders()
 
+
 def main():
     for directory in input_folders:
         with open(REUTERS_OUTPUT_FOLDER + "/" + directory + "/" + INPUT_FILE_NAME) as fp:
@@ -25,7 +26,7 @@ def main():
                 lower_tokens_str += token + ", "
             # Write to Output File
             save(directory, OUTPUT_FILE_NAME, lower_tokens_str.rstrip(", "))
-
+            print(lower_tokens_str.rstrip(", "))
 
 if __name__ == '__main__':
     main()

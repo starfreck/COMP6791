@@ -15,7 +15,6 @@ def text_cleaner(string):
     string = re.sub(' +', ' ', string)
     return string
 
-
 def tokenizer(text):
     tokens = word_tokenize(text_cleaner(text))
     tokens = set(tokens)  # Using set() here to remove duplicate tokens
@@ -36,6 +35,7 @@ def main():
                 tokens_str += token + ", "
             # Write to Output File
             save(directory, OUTPUT_FILE_NAME, tokens_str.rstrip(", "))
+            print(tokens_str.rstrip(", "))
 
 
 if __name__ == '__main__':

@@ -57,6 +57,7 @@ def main(reuters_file, number_of_articles=None):
                 count += 1
                 # Write Article to File
                 save(new_id, OUTPUT_FILE_NAME, str(title) + " " + str(body))
+                print(str(title) + " " + str(body))
 
 
 """
@@ -77,5 +78,10 @@ if __name__ == '__main__':
     trace_files()
     # Get 1st File Only
     file_name = reuters_files[0]
-    # Process it (one by one via loop if required)
-    main(file_name, ARTICLE_COUNT)
+
+    # Process One file
+    # main(file_name, ARTICLE_COUNT)
+
+    # Process All files
+    for reuters_file in reuters_files:
+        main(reuters_file)

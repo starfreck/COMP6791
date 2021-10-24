@@ -40,6 +40,7 @@ def main():
                 filtered_tokens_str += token + ", "
             # Write to Output File
             save(directory, OUTPUT_FILE_NAME, filtered_tokens_str.rstrip(", "))
+            print(filtered_tokens_str.rstrip(", "))
 
 
 if __name__ == '__main__':
