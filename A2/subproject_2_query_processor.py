@@ -1,6 +1,5 @@
 import pickle
-import timeit
-from lib import REUTERS_OUTPUT_FOLDER
+from lib import REUTERS_OUTPUT_FOLDER, measured_run
 
 inverted_index = {}
 
@@ -67,7 +66,4 @@ def main():
 
 
 if __name__ == '__main__':
-    start = timeit.default_timer()
-    main()
-    stop = timeit.default_timer()
-    print('Run Time: ', stop - start)
+    measured_run(function=main,name="Main")

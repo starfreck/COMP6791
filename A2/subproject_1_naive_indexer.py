@@ -2,9 +2,8 @@ import json
 import os
 import re
 import glob
-import timeit
 
-from lib import save, save_pickle
+from lib import save, save_pickle, measured_run, size
 from nltk import word_tokenize
 
 inverted_index = {}
@@ -65,35 +64,31 @@ def text_cleaner(string):
 
 def tokenizer(text):
     tokens = word_tokenize(text_cleaner(text))
-    tokens = set(tokens)  # Using set() here to remove duplicate tokens
-    tokens = list(tokens)  # Using list() here to convert unique tokens to list
-    return tokens
+    return list(set(tokens))  # Using set() here to remove duplicate tokens
 
 
 def make_pairs(article):
-    doc_id = article[0]
-    tokens = article[1]
+    doc_id, tokens = article
     for token in tokens:
-        pairs.append([token, int(doc_id)])
+        pairs.append((token, int(doc_id)))
 
 
 def construct_index():
     """turn the sorted file F into an index by turning the docIDs paired with the same term into a postings list and
     setting the pointer """
     global inverted_index
-
-    while pairs:
-        term, doc_id = pairs.pop(0)
+    for pair in pairs:
+        term, doc_id = pair
         if term not in inverted_index:
             inverted_index[term] = [doc_id]
         else:
             if doc_id not in inverted_index[term]:
                 inverted_index[term].append(doc_id)
-                inverted_index[term].sort()
+                #inverted_index[term].sort()
 
 
 def main():
-    global inverted_index
+    global inverted_index, pairs
     # Read All Reuters File Names
     trace_files()
 
@@ -104,32 +99,26 @@ def main():
         for article in articles:
             # Process Each Article One by One
             make_pairs(article)
-            # sort F
-            pairs.sort()
-            # Duplicates were already removed during the tokenization process
-            # Construction of Inverted Index
-            construct_index()
 
     # All Files are processed
+    # sort F
+    pairs.sort()
+
+    # Duplicates were already removed during the tokenization process
+    # Reason: It is much faster to remove duplicates from same articles
+    # than after creating pairs. [see tokenizer() for more.]
+
+    # Construction of Inverted Index
+    construct_index()
     # Write to Text File
     save(name="inverted_index_unfiltered.txt", content=json.dumps(inverted_index, indent=4))
     # Write to Pickle File
     save_pickle(name="inverted_index_unfiltered.pickle", content=inverted_index)
 
 
-def size():
-    global number_of_terms, number_of_postings
-    number_of_terms = len(inverted_index)
-    for k, v in inverted_index.items():
-        number_of_postings += len(v)
-
-
 if __name__ == '__main__':
-    start = timeit.default_timer()
-    main()
-    stop = timeit.default_timer()
-    print('Run Time: ', stop - start, "Seconds")
+    measured_run(function=main,name="Main")
     # Check Size
-    size()
+    number_of_terms, number_of_postings = size(inverted_index)
     print('Number of Terms: ', number_of_terms)
     print('Number of Postings: ', number_of_postings)
