@@ -16,7 +16,16 @@ def load_inverted_index(choice):
         exit(0)
 
 
-def query_processor(query):
+def query_processor(query, choice):
+    # Convert to lower case if it's not for unfiltered or no numbers
+    if not (choice == "inverted_index_unfiltered" or choice == "inverted_index_no_numbers"):
+        query = query.lower()
+    # We have to use Stammer on query
+    if choice == "inverted_index_stemming":
+        from nltk.stem.porter import PorterStemmer
+        stemmer = PorterStemmer()
+        query = stemmer.stem(query)
+
     if query in inverted_index:
         print("No. of Docs:", len(inverted_index[query]))
         print("Doc IDs:", inverted_index[query])
@@ -35,7 +44,6 @@ def menu():
 
 
 def select_choice():
-    choice = ""
     while True:
         option = menu()
         if option == "1":
@@ -48,7 +56,7 @@ def select_choice():
             return "inverted_index_30_stop_words"
         elif option == "5":
             return "inverted_index_150_stop_words"
-        elif option == "5":
+        elif option == "6":
             return "inverted_index_stemming"
         else:
             print("Invalid choice! Please try again!")
@@ -61,7 +69,7 @@ def main():
     load_inverted_index(choice)
     query = input("Enter 'exit..' to stop\n> ")
     while query != 'exit..':
-        query_processor(query)
+        query_processor(query,choice)
         query = input("> ")
 
 
