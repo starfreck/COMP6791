@@ -2,8 +2,9 @@ import json
 import pickle
 from nltk.stem.porter import PorterStemmer
 from tabulate import tabulate
+from nltk.corpus import stopwords as stw
 
-from lib import REUTERS_OUTPUT_FOLDER, measured_run, save, save_pickle, size, stopwords
+from lib import REUTERS_OUTPUT_FOLDER, measured_run, save, save_pickle, size
 
 inverted_index = {}
 inverted_index_no_numbers = {}
@@ -12,6 +13,7 @@ inverted_index_30_stop_words = {}
 inverted_index_150_stop_words = {}
 inverted_index_stemming = {}
 
+stopwords = stw.words('english')
 data = {'unfiltered': [67961, 1775388]}
 
 
@@ -79,7 +81,7 @@ def remove_30_stop_words():
 
 
 def remove_150_stop_words():
-    stop_words_150 = stopwords[-150:]
+    stop_words_150 = stopwords[:150]
 
     for k, v in inverted_index_case_folding.items():
         if k not in stop_words_150:
@@ -118,7 +120,6 @@ def remove_stemmed_words():
 
 
 def table():
-
     # unfiltered
     t_d0 = ""
     t_t0 = ""
@@ -147,39 +148,38 @@ def table():
     p_t4 = delta(data['150_stop_words'][1], data['unfiltered'][1])
 
     # stemming
-    t_d5 = delta(data['stemming'][0], data['case_folding'][0])
+    t_d5 = delta(data['stemming'][0], data['150_stop_words'][0])
     t_t5 = delta(data['stemming'][0], data['unfiltered'][0])
-    p_d5 = delta(data['stemming'][1], data['case_folding'][1])
+    p_d5 = delta(data['stemming'][1], data['150_stop_words'][1])
     p_t5 = delta(data['stemming'][1], data['unfiltered'][1])
 
-
-    headers = ["", "number\n(distinct) terms", "D%\n(distinct) terms", "T%\n(distinct) terms",
-               "number\nnonpositional postings", "D%\nnonpositional postings", "T%\nnonpositional postings"]
+    headers = ["", "number of terms", "D%", "T%",
+               "number of nonpositional postings", "D%", "T%"]
     table = [
         ["unfiltered",
-            data['unfiltered'][0], t_d0, t_t0,
-            data['unfiltered'][1], p_d0, p_t0
-        ],
+         data['unfiltered'][0], t_d0, t_t0,
+         data['unfiltered'][1], p_d0, p_t0
+         ],
         ["no numbers",
-            data['no_numbers'][0], t_d1, t_t1,
-            data['no_numbers'][1], p_d1, p_t1
-        ],
+         data['no_numbers'][0], t_d1, t_t1,
+         data['no_numbers'][1], p_d1, p_t1
+         ],
         ["case folding",
-            data['case_folding'][0], t_d2, t_t2,
-            data['case_folding'][1], p_d2, p_t2
-        ],
+         data['case_folding'][0], t_d2, t_t2,
+         data['case_folding'][1], p_d2, p_t2
+         ],
         ["30 stop words",
-         data['30_stop_words'][0], t_d3, t_t3,     # change here
-         data['30_stop_words'][1], p_d3, p_t3      # change here
-        ],
+         data['30_stop_words'][0], t_d3, t_t3,
+         data['30_stop_words'][1], p_d3, p_t3
+         ],
         ["150 stop words",
-         data['150_stop_words'][0], t_d4, t_t4,    # change here
-         data['150_stop_words'][1], p_d4, p_t4     # change here
-        ],
+         data['150_stop_words'][0], t_d4, t_t4,
+         data['150_stop_words'][1], p_d4, p_t4
+         ],
         ["stemming",
-         data['stemming'][0], t_d5, t_t5,    # change here
-         data['stemming'][1], p_d5, p_t5     # change here
-        ]
+         data['stemming'][0], t_d5, t_t5,
+         data['stemming'][1], p_d5, p_t5
+         ]
     ]
     print(tabulate(table, headers, tablefmt="psql"))
 
