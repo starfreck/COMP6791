@@ -2,7 +2,6 @@ import json
 import os
 import re
 import glob
-import time
 import timeit
 
 from lib import save, save_pickle, measured_run, size
@@ -17,6 +16,7 @@ number_of_terms = number_of_postings = 0
 
 counter = START_TIME = STOP_TIME = 0
 MAX_TOKEN_NUMBER = 10000
+
 
 def trace_files():
     """Get all files and make a list to process each files."""
@@ -93,6 +93,7 @@ def construct_index():
             STOP_TIME = timeit.default_timer()
         counter += 1
 
+
 def main():
     global inverted_index, pairs
     # Read All Reuters File Names
@@ -126,7 +127,7 @@ if __name__ == '__main__':
     START_TIME = timeit.default_timer()
     main()
     # Check Size
-    print('Time to process', MAX_TOKEN_NUMBER, 'tokens is',  STOP_TIME-START_TIME, "Seconds")
+    print('Time to process', MAX_TOKEN_NUMBER, 'tokens is', STOP_TIME - START_TIME, "Seconds")
     number_of_terms, number_of_postings = size(inverted_index)
     print('Number of Terms: ', number_of_terms)
     print('Number of Postings: ', number_of_postings)

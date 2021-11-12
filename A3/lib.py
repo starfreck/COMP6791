@@ -1,5 +1,5 @@
 import os
-import pickle
+import _pickle as pickle
 import timeit
 
 REUTERS_OUTPUT_FOLDER = "outputs"
@@ -19,7 +19,7 @@ def write_to_file(file_path, text, mode="w"):
 
 def write_to_pickle_file(file_path, content, mode="wb"):
     with open(file_path, mode) as handle:
-        pickle.dump(content, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(content, handle)
 
 
 def save(name, content, mode="w"):
@@ -35,10 +35,11 @@ def save_pickle(name, content, mode="wb"):
 def measured_run(function, name):
     print("Running", name + "() --->")
     start = timeit.default_timer()
-    function()
+    return_val = function()
     stop = timeit.default_timer()
     print('Run Time of ' + name + '(): ', stop - start, "Seconds")
     print("----------------------------------------------------------------")
+    return return_val
 
 
 def size(dictionary):

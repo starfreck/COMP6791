@@ -1,137 +1,51 @@
-import json
-import math
-import os
-import re
-import glob
-import timeit
-
-from lib import save, save_pickle, size
-from nltk import word_tokenize
-
-tfDict = {}
-corpus = {}
-bag_of_words_in_corpus = {}
-unique_words = set()
-num_of_words_in_docs = {}
-inverted_index = {}
-reuters_files = []
-REUTERS_FOLDER = "./reuters21578"
-
-number_of_terms = number_of_postings = 0
-
-
-def trace_files():
-    """Get all files and make a list to process each files."""
-    os.chdir(REUTERS_FOLDER)
-    for file in glob.glob("*.sgm"):
-        reuters_files.append(REUTERS_FOLDER + "/" + file)
-    os.chdir("..")
-
-
-def parser(reuters_file):
-    """Extract the raw text of each article from the corpus"""
-
-    new_id_pattern = "NEWID=\"([\s\S]*?)\""
-    title_pattern = "<TITLE>([\s\S]*?)</TITLE>"
-    body_pattern = "<BODY>([\s\S]*?)</BODY>"
-
-    with open(reuters_file) as fp:
-        file_str = fp.read()
-        articles = file_str.split("</REUTERS>")
-
-        for article in articles:
-
-            new_id = title = body = None
-
-            if re.search(title_pattern, article) is not None:
-                new_id = re.search(new_id_pattern, article).group(1)
-
-            if re.search(title_pattern, article) is not None:
-                title = re.search(title_pattern, article).group(1)
-
-            if re.search(body_pattern, article) is not None:
-                body = re.search(body_pattern, article).group(1)
-
-            if new_id is None and title is None and body is None:
-                pass  # Everything is Empty
-            elif new_id is None:
-                pass  # If can't fine ID then skip article
-            else:
-                # Process the Article
-                yield new_id, str(title) + " " + str(body)
-
-
-def text_cleaner(string):
-    string = string.replace("&lt;", "").replace(".", "")
-    string = re.sub('[^a-zA-Z0-9 \.]', ' ', string)
-    string = re.sub(' +', ' ', string)
-    string = string.lower()
-    return string
-
-
-def tokenizer(text):
-    return word_tokenize(text_cleaner(text))
-
-
-def compute_tf(word_dict, bag_of_words):
-    tf = {}
-    bag_of_words_count = len(bag_of_words)
-    for word, count in word_dict.items():
-        tf[word] = count / float(bag_of_words_count)
-    return tf
-
-
-def get_unique_words():
-    global unique_words
-    for new_id, document in corpus.items():
-        bag_of_words_in_corpus[new_id] = tokenizer(document)
-        unique_words = unique_words.union(set(bag_of_words_in_corpus[new_id]))
-        unique_words.discard('')
-
-
-def generate_dictionary_of_words():
-    for new_id, bag_of_words in bag_of_words_in_corpus.items():
-        num_of_words = dict.fromkeys(unique_words, 0)
-        for word in bag_of_words:
-            try:
-                num_of_words[word] += 1
-            except:
-                print(word, "is not in unique_words")
-        num_of_words_in_docs[new_id] = num_of_words
+from BM25 import BM25
+import _pickle as pickle
+from tabulate import tabulate
+from lib import REUTERS_OUTPUT_FOLDER, save_pickle, measured_run
 
 
 def main():
-    global inverted_index, pairs
-    # Read All Reuters File Names
-    trace_files()
+    N = None
+    try:
+        N = int(input("How many documents you want to index? (N):"))
+    except:
+        print("Indexing all documents...")
 
-    # Process All files one by one
-    for reuters_file in reuters_files:
-        # Parse Article in 1 file
-        articles = parser(reuters_file)
+    # Create Object of BM25
+    if N is not None:
+        okapi_bm25 = BM25(N)
+    else:
+        okapi_bm25 = load_okapi_bm25_21578()
 
-        for new_id, article in articles:
-            # Process Each Article One by One
-            corpus[new_id] = article
+    okapi_bm25.parser_collection()
 
-    get_unique_words()
-    generate_dictionary_of_words()
-    # compute the term frequency for each of documents
-    for new_id, num_of_words in num_of_words_in_docs.items():
-        tfDict[new_id] = compute_tf(num_of_words, bag_of_words_in_corpus[new_id])
+    print("System is Ready for querying...")
+    query = input("Enter 'exit..' to stop\n> ")
 
-    print(tfDict)
-    # Construction of Inverted Index
-    # Write to Text File
-    # save(name="inverted_index_BM25.txt", content=json.dumps(inverted_index, indent=4))
-    # Write to Pickle File
-    # save_pickle(name="inverted_index_BM25.pickle", content=inverted_index)
+    while query != 'exit..':
+        result = okapi_bm25.search(query)
+        if result:
+            print("No. of Docs:", len(result))
+            table = []
+            headers = ['Doc ID', 'Rank Score']
+            for k, v in result.items():
+                table.append([v, round(k, 6)])
+            print(tabulate(tabular_data=table, headers=headers, tablefmt='pretty'))
+        else:
+            print("Sorry, No Match found... :(")
+        query = input("> ")
+
+
+def load_okapi_bm25_21578():
+    try:
+        with open(REUTERS_OUTPUT_FOLDER + "/pickle/okapi_bm25_21578.pickle", 'rb') as handle:
+            okapi_bm25_21578 = pickle.load(handle)
+    except:
+        okapi_bm25_21578 = BM25()
+        save_pickle(name="okapi_bm25_21578.pickle", content=okapi_bm25_21578)
+    return okapi_bm25_21578
+
 
 
 if __name__ == '__main__':
-    START_TIME = timeit.default_timer()
     main()
-    # Check Size
-    number_of_terms, number_of_postings = size(inverted_index)
-    print('Number of Terms: ', number_of_terms)
-    print('Number of Postings: ', number_of_postings)
