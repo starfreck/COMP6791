@@ -8,7 +8,7 @@ from nltk.corpus import stopwords
 
 class BM25:
 
-    _counter = 0
+
     _REUTERS_FOLDER = "./reuters21578"
 
     def __init__(self, no_of_docs=21578, k1=1.5, b=0.75):
@@ -16,7 +16,7 @@ class BM25:
         self.k1 = k1
         self.N = no_of_docs
 
-
+        self._counter = 0
         self._avg_doc_length = 0
 
         self._tf = {}

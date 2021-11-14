@@ -14,10 +14,9 @@ def main():
     # Create Object of BM25
     if N is not None:
         okapi_bm25 = BM25(N)
+        okapi_bm25.parser_collection()
     else:
         okapi_bm25 = load_okapi_bm25_21578()
-
-    okapi_bm25.parser_collection()
 
     print("System is Ready for querying...")
     query = input("Enter 'exit..' to stop\n> ")
@@ -42,9 +41,9 @@ def load_okapi_bm25_21578():
             okapi_bm25_21578 = pickle.load(handle)
     except:
         okapi_bm25_21578 = BM25()
+        measured_run(okapi_bm25_21578.parser_collection, "Creation of Ranked Index for 21578")
         save_pickle(name="okapi_bm25_21578.pickle", content=okapi_bm25_21578)
     return okapi_bm25_21578
-
 
 
 if __name__ == '__main__':

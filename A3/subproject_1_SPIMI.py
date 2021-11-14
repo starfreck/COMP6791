@@ -116,7 +116,7 @@ if __name__ == '__main__':
     START_TIME = timeit.default_timer()
     main()
     # Check Size
-    print('Time to process', MAX_TOKEN_NUMBER, 'tokens is', round(STOP_TIME - START_TIME,4), "Seconds")
+    print('Time to process', MAX_TOKEN_NUMBER, 'tokens is', round(STOP_TIME - START_TIME, 4), "Seconds")
     number_of_terms, number_of_postings = size(inverted_index)
     print('Number of Terms: ', number_of_terms)
     print('Number of Postings: ', number_of_postings)
