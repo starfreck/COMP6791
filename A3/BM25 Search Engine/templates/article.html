@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} You are viewing article {{ id }} {% endblock %}
+
+{% block content %}
+    <div class="s128">
+    <form>
+        <div class="inner-form">
+          <div class="row">
+            <h1 class="input-field first">
+                <a href="{{ url_for('index') }}">Reuters 21578 Search Engine</a>
+            </h1>
+              <h5 class="input-field first" style="color: hotpink">
+                  Author &nbsp;<a href="https://github.com/starfreck">@StarFreck</a>
+              </h5>
+          </div>
+        {% if found %}
+            <div class="row">
+                <h3 class="input-field first" style="color: hotpink">{{title}}</h3>
+            </div>
+            <div class="row">
+                <h4 class="input-field first" style="color: black">{{body}}</h4>
+            </div>
+        {% else %}
+            <div class="row">
+                <h2 class="input-field first" style="color: white">{{title}}</h2>
+            </div>
+        {% endif %}
+        </div>
+    </form>
+    </div>
+{% endblock %}

@@ -5,9 +5,15 @@ from lib import REUTERS_OUTPUT_FOLDER, save_pickle, measured_run
 
 
 def main():
+    print("""  
+    ▒█▀▀█ ▒█▀▄▀█ █▀█ █▀▀ 
+    ▒█▀▀▄ ▒█▒█▒█ ░▄▀ ▀▀▄ 
+    ▒█▄▄█ ▒█░░▒█ █▄▄ ▄▄▀
+    """)
+    print("__________________________")
     N = None
     try:
-        N = int(input("How many documents you want to index? (N):"))
+        N = int(input("How many documents you want to index?(N) [Press Enter for All]:"))
     except:
         print("Indexing all documents...")
 
@@ -26,9 +32,9 @@ def main():
         if result:
             print("No. of Docs:", len(result))
             table = []
-            headers = ['Doc ID', 'Rank Score']
-            for k, v in result.items():
-                table.append([v, round(k, 6)])
+            headers = ['#','Rank Score','Doc ID']
+            for i, pair in enumerate(result):
+                table.append([i+1,round(pair[1], 3),pair[0]])
             print(tabulate(tabular_data=table, headers=headers, tablefmt='pretty'))
         else:
             print("Sorry, No Match found... :(")

@@ -8,3 +8,4 @@ COMP 6791 Course Work
 3. http://ethen8181.github.io/machine-learning/search/bm25_intro.htm
 4. https://github.com/banhquocdanh/searchEngine/blob/master/src/bestMatch25.py
 5. http://nlp.stanford.edu/IR-book/pdf/11prob.pdf
+6. https://fsymbols.com/generators/tarty/

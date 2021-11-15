@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %} Welcome to Reuters 21578 Search Engine {% endblock %}
+
+{% block content %}
+    <div class="s128">
+      <form action="{{ url_for('search') }}">
+        <div class="inner-form">
+          <div class="row">
+            <h1 class="input-field first">
+                <a href="{{ url_for('index') }}">Reuters 21578 Search Engine</a>
+            </h1>
+               <h5 class="input-field first" style="color: hotpink">
+                  Author &nbsp;<a href="https://github.com/starfreck">@StarFreck</a>
+              </h5>
+          </div>
+          <div class="row">
+            <div class="input-field first" id="first">
+                {% if result %}
+                    <input class="input isFocus" id="inputFocus" name="query" type="text" placeholder="Keyword" value="{{query}}" />
+                {% else %}
+                    <input class="input" id="inputFocus" name="query" type="text" placeholder="Keyword" value="{{query}}" />
+                {% endif %}
+            </div>
+          </div>
+            {% if found %}
+                <div class="row">
+                    <h4 class="input-field first" style="color: white">About {{result|length}} results</h4>
+                </div>
+                {% for value in result %}
+                  <div class="row">
+                        <h5 class="input-field first" style="color: hotpink">Rank Score: {{value[1]}} &nbsp;&nbsp;&nbsp;&nbsp; Doc ID: {{value[0]}} </h5>
+                        <a href="{{ url_for('article') }}?id={{value[0]}}">
+                            <h4 class="input-field first">{{value[2]}}</h4>
+                        </a>
+                  </div>
+                {% endfor %}
+            {% else %}
+                <div class="row">
+                    <h1 class="input-field first" style="color: white">{{result}}</h1>
+                </div>
+            {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <script>
+      var inputFocus = document.getElementById('inputFocus');
+
+      document.addEventListener('click', function(e)
+      {
+        if (document.getElementById('first').contains(e.target))
+        {
+          inputFocus.classList.add('isFocus')
+        }
+        {% if found %}
+        {% else %}
+           else
+            {
+              // Clicked outside the box
+              inputFocus.classList.remove('isFocus')
+            }
+        {% endif %}
+
+      });
+    </script>
+{% endblock %}

@@ -4,11 +4,10 @@ import os
 import glob
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+import operator
 
 
 class BM25:
-
-
     _REUTERS_FOLDER = "./reuters21578"
 
     def __init__(self, no_of_docs=21578, k1=1.5, b=0.75):
@@ -23,6 +22,7 @@ class BM25:
         self._df = {}
         self._idf = {}
         self._corpus = {}
+        self._original_corpus = {}
         self._doc_len = {}
         self._word_count_dict = {}
 
@@ -122,6 +122,7 @@ class BM25:
                     pass  # If can't fine ID then skip article
                 else:
                     # Process the Article
+                    self._original_corpus[new_id] = [str(title), str(body)]
                     self._corpus[new_id] = BM25.tokenizer(str(title) + " " + str(body))
 
                 # Increment the counter
@@ -134,9 +135,9 @@ class BM25:
         for new_id in self._corpus.keys():
             score = self._ranking_score(query, new_id)
             if score > 0:
-                result[score] = new_id
+                result[int(new_id)] = score
         # Sort according to Ranking Score
-        return result
+        return sorted(result.items(), key=operator.itemgetter(1), reverse=True)
 
     def _ranking_score(self, query, new_id):
         score = 0.0
@@ -150,3 +151,15 @@ class BM25:
             denominator = freq + self.k1 * (1 - self.b + self.b * doc_len / self._avg_doc_length)
             score += (numerator / denominator)
         return score
+
+    def get_document_title(self, new_id=None):
+        if new_id is not None:
+            if 1 <= new_id <= 21578:
+                return self._original_corpus[str(new_id)][0]
+        return "Invalid NEWID !"
+
+    def get_document_body(self, new_id=None):
+        if new_id is not None:
+            if 1 <= new_id <= 21578:
+                return self._original_corpus[str(new_id)][1]
+        return "Invalid NEWID !"

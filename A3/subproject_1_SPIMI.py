@@ -1,11 +1,14 @@
 import json
+import operator
 import os
 import re
 import glob
 import timeit
-import time
+import _pickle as pickle
 
-from lib import save, save_pickle, measured_run, size
+from tabulate import tabulate
+
+from lib import save, save_pickle, size, REUTERS_OUTPUT_FOLDER
 from nltk import word_tokenize
 
 counter = 0
@@ -16,7 +19,7 @@ REUTERS_FOLDER = "./reuters21578"
 MAX_TOKEN_NUMBER = 10000
 counter = START_TIME = STOP_TIME = 0
 number_of_terms = number_of_postings = 0
-
+IS_OR = False
 
 def trace_files():
     """Get all files and make a list to process each files."""
@@ -112,11 +115,85 @@ def main():
     save_pickle(name="inverted_index_SPIMI.pickle", content=inverted_index)
 
 
+def load_SPIMI():
+    global inverted_index
+    try:
+        with open(REUTERS_OUTPUT_FOLDER + "/pickle/inverted_index_SPIMI.pickle", 'rb') as handle:
+            inverted_index = pickle.load(handle)
+    except:
+        START_TIME = timeit.default_timer()
+        main()
+        # Check Size
+        print('Time to process', MAX_TOKEN_NUMBER, 'tokens is', round(STOP_TIME - START_TIME, 4), "Seconds")
+
+
+def search(query):
+    if 'and' in query or 'AND' in query:
+        query_keywords = re.split("and", query, flags=re.IGNORECASE)
+        return and_query(query_keywords=[s.strip() for s in query_keywords])
+    elif 'or' in query or 'OR' in query:
+        query_keywords = re.split("or", query, flags=re.IGNORECASE)
+        return or_query(query_keywords=[s.strip() for s in query_keywords])
+    else:
+        return or_query(query_keywords=[query])
+
+
+def and_query(query_keywords):
+    results = []
+    final_result = []
+    for keyword in query_keywords:
+        if keyword in inverted_index:
+            results.append(inverted_index[keyword])
+    # Take out the minimum to perform AND
+    final_result = min(results, key=len)
+    results.remove(final_result)
+    while results:
+        min_list = min(results, key=len)
+        results.remove(min_list)
+        final_result = list(set(final_result) & set(min_list))
+    return final_result
+
+
+def or_query(query_keywords):
+    results = {}
+    for keyword in query_keywords:
+        if keyword in inverted_index:
+            for doc_id in inverted_index[keyword]:
+                if doc_id in results:
+                    results[doc_id] = results[doc_id]+1
+                else:
+                    results[doc_id] = 1
+    # Merge all lists and take Union to perform OR operation
+    return sorted(results.items(), key=operator.itemgetter(1), reverse=True)
+
+
 if __name__ == '__main__':
-    START_TIME = timeit.default_timer()
-    main()
-    # Check Size
-    print('Time to process', MAX_TOKEN_NUMBER, 'tokens is', round(STOP_TIME - START_TIME, 4), "Seconds")
+    print("""
+    ░█▀▀▀█ ░█▀▀█ ▀█▀ ░█▀▄▀█ ▀█▀ 
+    ─▀▀▀▄▄ ░█▄▄█ ░█─ ░█░█░█ ░█─ 
+    ░█▄▄▄█ ░█─── ▄█▄ ░█──░█ ▄█▄
+    """)
+    print("________________________________")
+    load_SPIMI()
     number_of_terms, number_of_postings = size(inverted_index)
     print('Number of Terms: ', number_of_terms)
     print('Number of Postings: ', number_of_postings)
+    print("System is Ready for querying...")
+    query = input("Enter 'exit..' to stop\n> ")
+
+    while query != 'exit..':
+        result = search(query)
+        if result:
+            print("No. of Docs:", len(result))
+            table = []
+            headers = ['#','No. of Keywords', 'Doc ID']
+            if type(result[0]) == tuple:
+                for i, pair in enumerate(result):
+                    table.append([i+1, pair[1], pair[0]])
+            else:
+                for i, pair in enumerate(result):
+                    table.append([i+1, 1, pair])
+            print(tabulate(tabular_data=table, headers=headers, tablefmt='pretty'))
+        else:
+            print("Sorry, No Match found... :(")
+        query = input("> ")
