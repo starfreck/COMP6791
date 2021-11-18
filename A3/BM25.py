@@ -65,12 +65,12 @@ class BM25:
         for new_id, tokens in self._corpus.items():
             self._corpus[new_id] = [token for token in tokens if self._word_count_dict[token] > 1]
 
-        # Start the process ...
+        # Start the process
         for new_id, doc in self._corpus.items():
 
             self._doc_len[new_id] = len(doc)
 
-            # compute term frequency per document
+            # calculate term frequency per document
             frequencies = {}
             for term in doc:
                 term_count = frequencies.get(term, 0) + 1
@@ -78,10 +78,12 @@ class BM25:
 
             self._tf[new_id] = frequencies
 
-            # compute document frequency per term
+            # calculate document frequency per term
             for term, _ in frequencies.items():
                 df_count = self._df.get(term, 0) + 1
                 self._df[term] = df_count
+
+
 
         for term, freq in self._df.items():
             self._idf[term] = math.log(1 + (self.N - freq + 0.5) / (freq + 0.5))
@@ -116,9 +118,7 @@ class BM25:
                 if re.search(body_pattern, article) is not None:
                     body = re.search(body_pattern, article).group(1)
 
-                if new_id is None and title is None and body is None:
-                    pass  # Everything is Empty
-                elif new_id is None:
+                if new_id is None:
                     pass  # If can't fine ID then skip article
                 else:
                     # Process the Article

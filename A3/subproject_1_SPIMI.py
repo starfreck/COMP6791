@@ -53,9 +53,7 @@ def parser(reuters_file):
             if re.search(body_pattern, article) is not None:
                 body = re.search(body_pattern, article).group(1)
 
-            if new_id is None and title is None and body is None:
-                pass  # Everything is Empty
-            elif new_id is None:
+            if new_id is None:
                 pass  # If can't fine ID then skip article
             else:
                 # Process the Article
