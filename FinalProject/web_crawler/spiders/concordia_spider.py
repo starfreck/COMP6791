@@ -68,7 +68,6 @@ class firstSpider(scrapy.Spider):
 
 
 def text_cleaner(string):
-    # string = string.replace(".", "")
     string = re.sub('[^a-zA-Z0-9 \.]', ' ', string)
     string = re.sub(' +', ' ', string)
     return string

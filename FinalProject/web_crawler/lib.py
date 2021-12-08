@@ -18,6 +18,13 @@ def create_file(path):
         f.close()
 
 
+def exists(path):
+    if os.path.exists(path):
+        if os.path.isfile(path):
+            return True
+    return False
+
+
 def remove_old_outputs():
     try:
         shutil.rmtree("Outputs")
